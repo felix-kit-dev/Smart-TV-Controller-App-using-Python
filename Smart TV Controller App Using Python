@@ -1,0 +1,90 @@
+import tkinter as tk
+from tkinter import messagebox
+import upnpclient
+
+class SmartTVController:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Smart TV Controller")
+        self.root.geometry("400x300")
+
+        # Frame for scanning TVs
+        self.scan_frame = tk.Frame(root)
+        self.scan_frame.pack(pady=10)
+
+        self.scan_button = tk.Button(self.scan_frame, text="Scan for TVs", command=self.scan_tvs)
+        self.scan_button.pack(side=tk.LEFT, padx=5)
+
+        self.refresh_button = tk.Button(self.scan_frame, text="Refresh", command=self.scan_tvs)
+        self.refresh_button.pack(side=tk.LEFT, padx=5)
+
+        # Frame for TV list
+        self.tv_frame = tk.LabelFrame(root, text="Available TVs", padx=10, pady=10)
+        self.tv_frame.pack(pady=10, fill="both", expand="yes")
+
+        self.tv_listbox = tk.Listbox(self.tv_frame, selectmode=tk.SINGLE)
+        self.tv_listbox.pack(pady=5, fill="both", expand="yes")
+        self.tv_listbox.bind('<<ListboxSelect>>', self.on_tv_select)
+
+        # Frame for control buttons
+        self.command_frame = tk.LabelFrame(root, text="Controls", padx=10, pady=10)
+        self.command_frame.pack(pady=10, fill="both", expand="yes")
+
+        self.power_button = tk.Button(self.command_frame, text="Power", command=self.toggle_power)
+        self.power_button.grid(row=0, column=0, padx=10, pady=5)
+
+        self.volume_up_button = tk.Button(self.command_frame, text="Volume Up", command=self.volume_up)
+        self.volume_up_button.grid(row=0, column=1, padx=10, pady=5)
+
+        self.volume_down_button = tk.Button(self.command_frame, text="Volume Down", command=self.volume_down)
+        self.volume_down_button.grid(row=0, column=2, padx=10, pady=5)
+
+        self.input_button = tk.Button(self.command_frame, text="Change Input", command=self.change_input)
+        self.input_button.grid(row=1, column=0, columnspan=3, pady=5)
+
+        self.tvs = []
+        self.selected_tv = None
+
+    def scan_tvs(self):
+        self.tvs = upnpclient.discover()
+        self.tv_listbox.delete(0, tk.END)
+        if not self.tvs:
+            messagebox.showinfo("Scan Result", "No TVs found on the network.")
+        for tv in self.tvs:
+            self.tv_listbox.insert(tk.END, tv.friendly_name)
+
+    def on_tv_select(self, event):
+        selection = event.widget.curselection()
+        if selection:
+            index = selection[0]
+            self.selected_tv = self.tvs[index]
+            messagebox.showinfo("TV Selected", f"Selected TV: {self.selected_tv.friendly_name}")
+
+    def toggle_power(self):
+        if self.selected_tv:
+            # Implement specific power toggle command here
+            print("Power toggle command sent to", self.selected_tv.friendly_name)
+            messagebox.showinfo("Command Sent", "Power toggle command sent.")
+
+    def volume_up(self):
+        if self.selected_tv:
+            # Implement specific volume up command here
+            print("Volume up command sent to", self.selected_tv.friendly_name)
+            messagebox.showinfo("Command Sent", "Volume up command sent.")
+
+    def volume_down(self):
+        if self.selected_tv:
+            # Implement specific volume down command here
+            print("Volume down command sent to", self.selected_tv.friendly_name)
+            messagebox.showinfo("Command Sent", "Volume down command sent.")
+
+    def change_input(self):
+        if self.selected_tv:
+            # Implement specific change input command here
+            print("Change input command sent to", self.selected_tv.friendly_name)
+            messagebox.showinfo("Command Sent", "Change input command sent.")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SmartTVController(root)
+    root.mainloop()
